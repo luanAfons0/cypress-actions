@@ -1,0 +1,37 @@
+name: Testes Cypress Agendados 
+
+on: 
+  workflow_dispatch: 
+  schedule: 
+    - cron: '0 21 * * *' 
+      timezone: 'America/Sao_Paulo' 
+
+jobs: 
+  testes-e2e: 
+    runs-on: ubuntu-latest 
+
+    steps: 
+      - name: Baixar o projeto 
+        uses: actions/checkout@v4 
+
+      - name: Configurar o Node.js 
+        uses: actions/setup-node@v4 
+        with: 
+          node-version: '22' 
+          cache: 'npm' 
+
+      - name: Instalar dependências 
+        run: npm ci 
+
+      - name: Executar os testes Cypress 
+        run: npm test 
+
+      - name: Salvar evidências em caso de falha 
+        if: failure() 
+        uses: actions/upload-artifact@v4 
+        with: 
+          name: evidencias-cypress 
+          path: | 
+            cypress/screenshots 
+            cypress/videos 
+          if-no-files-found: ignore 
